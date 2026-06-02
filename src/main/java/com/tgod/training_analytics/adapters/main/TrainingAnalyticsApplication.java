@@ -1,4 +1,4 @@
-package com.tgod.training_analytics;
+package com.tgod.training_analytics.adapters.main;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
