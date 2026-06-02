@@ -13,4 +13,5 @@ public class AnalysisController implements InsightsApi {
     public ResponseEntity<InsightDto> getInsight(Long id) {
         return null;
     }
+
 }

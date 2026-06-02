@@ -33,14 +33,12 @@ management:
     enable:
       spring:
         security: false
-
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics,prometheus,mappings
 
 openai:
   apiKey: ${OPENAI_API_KEY:apikey}
   organizationId: XXX
   projectId: XXX
-
