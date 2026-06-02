@@ -1,0 +1,46 @@
+spring:
+  liquibase:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: none
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/${DB_NAME:statsdb}
+    username: ${DB_USER:admin}
+    password: ${DB_PASSWORD:admin}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://cognito-idp.${AWS_REGION:us-east-1}.amazonaws.com/${AWS_USERS_POOL_ID:us-east-1_ehvIWsq3Y}
+    enabled: true
+server:
+  error:
+    include-message: always
+  servlet:
+    context-path: /api
+
+springdoc:
+  auto-tag-classes: false
+  default-produces-media-type: application/json
+
+management:
+  metrics:
+    enable:
+      spring:
+        security: false
+
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+openai:
+  apiKey: ${OPENAI_API_KEY:apikey}
+  organizationId: XXX
+  projectId: XXX
+
