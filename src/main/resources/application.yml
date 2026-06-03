@@ -42,3 +42,7 @@ openai:
   apiKey: ${OPENAI_API_KEY:apikey}
   organizationId: XXX
   projectId: XXX
+strava:
+  client-id: 254561
+  client-secret: ${STRAVA_CLIENT_SECRET:strava-secret}
+  redirect-uri: http://localhost:8080/api/strava/callback
