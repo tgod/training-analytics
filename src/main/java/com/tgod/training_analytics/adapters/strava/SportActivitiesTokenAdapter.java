@@ -1,7 +1,9 @@
 package com.tgod.training_analytics.adapters.strava;
 
 import com.tgod.training_analytics.adapters.strava.client.StravaApiClient;
+import com.tgod.training_analytics.adapters.strava.client.StravaApiException;
 import com.tgod.training_analytics.adapters.strava.config.StravaProperties;
+import com.tgod.training_analytics.domain.activities.exception.TokenExchangeException;
 import com.tgod.training_analytics.domain.activities.model.AccessToken;
 import com.tgod.training_analytics.domain.ports.activities.SportActivitiesTokenPort;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,9 @@ public class SportActivitiesTokenAdapter implements SportActivitiesTokenPort {
                     Instant.ofEpochSecond(response.expires_at())
             );
         } catch (IOException e) {
-            throw new RuntimeException(e); //TODO: error handling
+            throw new TokenExchangeException("Network error during token exchange", e);
+        } catch (StravaApiException e) {
+            throw new TokenExchangeException("Strava rejected token exchange: " + e.getMessage(), e);
         }
     }
 }
