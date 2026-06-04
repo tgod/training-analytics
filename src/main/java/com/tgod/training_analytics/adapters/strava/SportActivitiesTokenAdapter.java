@@ -43,4 +43,27 @@ public class SportActivitiesTokenAdapter implements SportActivitiesTokenPort {
             throw new TokenExchangeException("Strava rejected token exchange: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public AccessToken refreshToken(AccessToken token) {
+        try {
+            var response = client.refreshToken(
+                    token.getRefreshToken(),
+                    properties.clientId(),
+                    properties.clientSecret()
+            );
+
+            return new AccessToken(
+                    token.getUsername(),
+                    token.getAthleteId(),
+                    response.access_token(),
+                    response.refresh_token(),
+                    Instant.ofEpochSecond(response.expires_at())
+            );
+        } catch (IOException e) {
+            throw new TokenExchangeException("Network error during token refresh", e);
+        } catch (StravaApiException e) {
+            throw new TokenExchangeException("Strava rejected token refresh: " + e.getMessage(), e);
+        }
+    }
 }

@@ -103,6 +103,10 @@ public class AccessToken {
         return updatedAt;
     }
 
+    public boolean isExpiringSoon() {
+        return Instant.now().isAfter(expiresAt.minusSeconds(3600));
+    }
+
     public void updateTokens(
             String accessToken,
             String refreshToken,

@@ -3,6 +3,7 @@ package com.tgod.training_analytics.domain.activities.usecase;
 import com.tgod.training_analytics.domain.activities.exception.TokenNotFoundException;
 import com.tgod.training_analytics.domain.activities.model.AccessToken;
 import com.tgod.training_analytics.domain.activities.repository.AccessTokenRepository;
+import com.tgod.training_analytics.domain.ports.activities.SportActivitiesTokenPort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,9 +13,18 @@ public class AccessTokenUC {
     @Autowired
     private AccessTokenRepository repository;
 
+    @Autowired
+    private SportActivitiesTokenPort tokenPort;
+
     public AccessToken getByUsername(String username) {
-        return repository.findByUsername(username)
+        var token = repository.findByUsername(username)
                 .orElseThrow(() -> new TokenNotFoundException(username));
+        if (token.isExpiringSoon()) {
+            var refreshed = tokenPort.refreshToken(token);
+            upsert(refreshed);
+            return refreshed;
+        }
+        return token;
     }
 
     public void upsert(AccessToken token) {

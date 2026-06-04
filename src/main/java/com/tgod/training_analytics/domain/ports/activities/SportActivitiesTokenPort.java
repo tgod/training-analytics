@@ -6,4 +6,6 @@ public interface SportActivitiesTokenPort {
 
     AccessToken getToken(String username, String code);
 
+    AccessToken refreshToken(AccessToken token);
+
 }

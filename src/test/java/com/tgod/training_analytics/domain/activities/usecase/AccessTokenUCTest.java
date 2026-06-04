@@ -3,6 +3,7 @@ package com.tgod.training_analytics.domain.activities.usecase;
 import com.tgod.training_analytics.domain.activities.exception.TokenNotFoundException;
 import com.tgod.training_analytics.domain.activities.model.AccessToken;
 import com.tgod.training_analytics.domain.activities.repository.AccessTokenRepository;
+import com.tgod.training_analytics.domain.ports.activities.SportActivitiesTokenPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -25,13 +27,16 @@ class AccessTokenUCTest {
     @Mock
     private AccessTokenRepository repository;
 
+    @Mock
+    private SportActivitiesTokenPort tokenPort;
+
     @InjectMocks
     private AccessTokenUC uc;
 
     private static final String USERNAME = "admin";
 
     @Test
-    void getByUsernameReturnsTokenWhenFound() {
+    void getByUsernameReturnsTokenWhenNotExpiringSoon() {
         //given
         AccessToken token = new AccessToken(USERNAME, 42L, "access", "refresh", Instant.parse("2026-12-01T00:00:00Z"));
         when(repository.findByUsername(USERNAME)).thenReturn(Optional.of(token));
@@ -41,6 +46,27 @@ class AccessTokenUCTest {
 
         //then
         assertThat(result).isEqualTo(token);
+        verify(tokenPort, never()).refreshToken(token);
+    }
+
+    @Test
+    void getByUsernameRefreshesAndSavesTokenWhenExpiringSoon() {
+        //given
+        var staleToken = new AccessToken(USERNAME, 42L, "old-access", "old-refresh", Instant.now().plusSeconds(1800));
+        var refreshedToken = new AccessToken(USERNAME, 42L, "new-access", "new-refresh", Instant.now().plusSeconds(21600));
+        when(repository.findByUsername(USERNAME))
+                .thenReturn(Optional.of(staleToken))
+                .thenReturn(Optional.of(staleToken));
+        when(tokenPort.refreshToken(staleToken)).thenReturn(refreshedToken);
+
+        //when
+        AccessToken result = uc.getByUsername(USERNAME);
+
+        //then
+        assertThat(result.getAccessToken()).isEqualTo("new-access");
+        assertThat(result.getRefreshToken()).isEqualTo("new-refresh");
+        verify(tokenPort).refreshToken(staleToken);
+        verify(repository).save(staleToken);
     }
 
     @Test

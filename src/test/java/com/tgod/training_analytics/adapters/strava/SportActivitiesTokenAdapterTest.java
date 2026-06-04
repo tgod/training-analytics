@@ -90,4 +90,59 @@ class SportActivitiesTokenAdapterTest {
                 .hasMessageContaining("Strava rejected token exchange")
                 .hasCauseInstanceOf(StravaApiException.class);
     }
+
+    @Test
+    void shouldMapRefreshResponseToNewAccessToken() throws IOException {
+        //given
+        long athleteId = 42L;
+        long expiresAt = 1893456000L;
+        var staleToken = new AccessToken(USERNAME, athleteId, "old-access", "old-refresh", Instant.now().plusSeconds(1800));
+        var response = new StravaTokenResponse("Bearer", "new-access", "new-refresh", expiresAt, 21600, null);
+
+        when(properties.clientId()).thenReturn(CLIENT_ID);
+        when(properties.clientSecret()).thenReturn(CLIENT_SECRET);
+        when(client.refreshToken("old-refresh", CLIENT_ID, CLIENT_SECRET)).thenReturn(response);
+
+        //when
+        AccessToken result = adapter.refreshToken(staleToken);
+
+        //then
+        assertThat(result.getUsername()).isEqualTo(USERNAME);
+        assertThat(result.getAthleteId()).isEqualTo(athleteId);
+        assertThat(result.getAccessToken()).isEqualTo("new-access");
+        assertThat(result.getRefreshToken()).isEqualTo("new-refresh");
+        assertThat(result.getExpiresAt()).isEqualTo(Instant.ofEpochSecond(expiresAt));
+    }
+
+    @Test
+    void shouldWrapIOExceptionDuringRefreshInTokenExchangeException() throws IOException {
+        //given
+        var staleToken = new AccessToken(USERNAME, 42L, "old-access", "old-refresh", Instant.now().plusSeconds(1800));
+        when(properties.clientId()).thenReturn(CLIENT_ID);
+        when(properties.clientSecret()).thenReturn(CLIENT_SECRET);
+        when(client.refreshToken("old-refresh", CLIENT_ID, CLIENT_SECRET))
+                .thenThrow(new IOException("connection refused"));
+
+        //when / then
+        assertThatThrownBy(() -> adapter.refreshToken(staleToken))
+                .isInstanceOf(TokenExchangeException.class)
+                .hasMessageContaining("Network error during token refresh")
+                .hasCauseInstanceOf(IOException.class);
+    }
+
+    @Test
+    void shouldWrapStravaApiExceptionDuringRefreshInTokenExchangeException() throws IOException {
+        //given
+        var staleToken = new AccessToken(USERNAME, 42L, "old-access", "old-refresh", Instant.now().plusSeconds(1800));
+        when(properties.clientId()).thenReturn(CLIENT_ID);
+        when(properties.clientSecret()).thenReturn(CLIENT_SECRET);
+        when(client.refreshToken("old-refresh", CLIENT_ID, CLIENT_SECRET))
+                .thenThrow(new StravaApiException(401, "Unauthorized"));
+
+        //when / then
+        assertThatThrownBy(() -> adapter.refreshToken(staleToken))
+                .isInstanceOf(TokenExchangeException.class)
+                .hasMessageContaining("Strava rejected token refresh")
+                .hasCauseInstanceOf(StravaApiException.class);
+    }
 }
