@@ -1,13 +1,11 @@
 package com.tgod.training_analytics.domain.analysis;
 
-import com.tgod.training_analytics.domain.activities.exception.TokenNotFoundException;
-import com.tgod.training_analytics.domain.activities.model.AccessToken;
 import com.tgod.training_analytics.domain.activities.model.Activity;
-import com.tgod.training_analytics.domain.activities.usecase.AccessTokenUC;
+import com.tgod.training_analytics.domain.activities.model.ActivityEntity;
+import com.tgod.training_analytics.domain.activities.repository.ActivityRepository;
 import com.tgod.training_analytics.domain.analysis.model.TrainingAnalysis;
 import com.tgod.training_analytics.domain.common.TimeProvider;
 import com.tgod.training_analytics.domain.openai.PromptBuilderService;
-import com.tgod.training_analytics.domain.ports.activities.SportActivitiesDataPort;
 import com.tgod.training_analytics.domain.ports.openai.LLMPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,20 +22,17 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ActivityAnalisysServiceTest {
 
     @Mock
-    private SportActivitiesDataPort stravaPort;
+    private ActivityRepository activityRepository;
     @Mock
     private LLMPort llmPort;
     @Mock
     private PromptBuilderService promptBuilder;
-    @Mock
-    private AccessTokenUC accessTokenUC;
     @Mock
     private TimeProvider timeProvider;
 
@@ -45,7 +40,6 @@ class ActivityAnalisysServiceTest {
     private ActivityAnalisysService service;
 
     private static final String USERNAME = "admin";
-    private static final String ACCESS_TOKEN = "access-token";
     private static final String SYSTEM_PROMPT = "You are a coach.";
     private static final Instant NOW = Instant.parse("2026-06-01T00:00:00Z");
 
@@ -58,15 +52,18 @@ class ActivityAnalisysServiceTest {
     @Test
     void analyzeDelegatesToCollaboratorsAndReturnsResult() {
         //given
-        var token = new AccessToken(USERNAME, 42L, ACCESS_TOKEN, "refresh", Instant.parse("2026-12-01T00:00:00Z"));
-        List<Activity> activities = List.of();
+        var activity = new Activity(1L, "Morning Run", 10000, 3600, 3600, "Run", "Run",
+                "2026-05-01T07:00:00Z", "2026-05-01T08:00:00Z", "UTC",
+                100, 2.8, 4.0, 145.0, 170.0, null, null, null, null, null,
+                false, false, 0, 3, null, 50, 10);
+        var entity = new ActivityEntity(activity, USERNAME);
+        var after = NOW.minus(4 * 7L, ChronoUnit.DAYS).toString();
         var userPrompt = "Analyze 4 weeks of training...";
         var expected = new TrainingAnalysis("moderate", List.of("Good volume"), "Keep it up", "Watch HR");
 
         when(timeProvider.getTime()).thenReturn(NOW);
-        when(accessTokenUC.getByUsername(USERNAME)).thenReturn(token);
-        when(stravaPort.getActivities(ACCESS_TOKEN, NOW.minus(4*7, ChronoUnit.DAYS))).thenReturn(activities);
-        when(promptBuilder.buildUserPrompt(activities, 4)).thenReturn(userPrompt);
+        when(activityRepository.findAllByUsernameAndStartDateGreaterThan(USERNAME, after)).thenReturn(List.of(entity));
+        when(promptBuilder.buildUserPrompt(List.of(activity), 4)).thenReturn(userPrompt);
         when(llmPort.analyze(SYSTEM_PROMPT, userPrompt)).thenReturn(expected);
 
         //when
@@ -74,16 +71,5 @@ class ActivityAnalisysServiceTest {
 
         //then
         assertThat(result).isEqualTo(expected);
-    }
-
-    @Test
-    void analyzePropagatesTokenNotFoundExceptionWhenTokenMissing() {
-        //given
-        when(accessTokenUC.getByUsername(USERNAME)).thenThrow(new TokenNotFoundException(USERNAME));
-
-        //when / then
-        assertThatThrownBy(() -> service.analyze(USERNAME, 4))
-                .isInstanceOf(TokenNotFoundException.class)
-                .hasMessageContaining(USERNAME);
     }
 }

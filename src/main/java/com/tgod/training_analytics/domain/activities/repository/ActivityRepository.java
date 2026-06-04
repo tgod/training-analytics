@@ -13,4 +13,6 @@ public interface ActivityRepository extends CrudRepository<ActivityEntity, Long>
     Optional<ActivityEntity> findTopByUsernameOrderByStartDateDesc(String username);
 
     List<ActivityEntity> findAllByUsername(String username);
+
+    List<ActivityEntity> findAllByUsernameAndStartDateGreaterThan(String username, String startDate);
 }
