@@ -35,8 +35,13 @@ public class AuthenticationCallbackUC {
                 response.refresh_token(),
                 Instant.ofEpochSecond(response.expires_at())
         );
-
-        repository.save(token);
+        var existingTokenOpt = repository.findByUsername(username);
+        if(existingTokenOpt.isPresent()){
+            var existingToken = existingTokenOpt.get();
+            existingToken.updateTokens(token.getAccessToken(), token.getRefreshToken(), token.getExpiresAt());
+            repository.save(existingToken);
+        }
+        else repository.save(token);
     }
 
 }
