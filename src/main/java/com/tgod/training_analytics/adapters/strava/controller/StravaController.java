@@ -23,18 +23,13 @@ import java.util.List;
 public class StravaController {
 
     @Autowired
-    AuthenticationCallbackUC authCallbackUC;
+    private AuthenticationCallbackUC authCallbackUC;
 
     @Autowired
-    GetActivitiesUC getActivitiesUC;
+    private GetActivitiesUC getActivitiesUC;
 
-    private final StravaProperties properties;
-
-    public StravaController(
-            StravaProperties properties
-    ) {
-        this.properties = properties;
-    }
+    @Autowired
+    private StravaProperties properties;
 
     @GetMapping("/strava/login")
     public ResponseEntity<Void> login(Principal principal) {
