@@ -1,4 +1,4 @@
-package com.tgod.training_analytics.domain.strava.model;
+package com.tgod.training_analytics.domain.activities.model;
 
 import jakarta.persistence.*;
 

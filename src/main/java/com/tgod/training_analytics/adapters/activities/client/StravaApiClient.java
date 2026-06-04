@@ -1,29 +1,68 @@
-package com.tgod.training_analytics.adapters.strava.client;
+package com.tgod.training_analytics.adapters.activities.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tgod.training_analytics.domain.strava.model.StravaTokenResponse;
+import com.tgod.training_analytics.domain.activities.model.Activity;
+import com.tgod.training_analytics.domain.activities.model.StravaTokenResponse;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
-public class StravaAuthClient {
-
-    private static final String TOKEN_URL =
-            "https://www.strava.com/oauth/token";
+public class StravaApiClient {
 
     private final OkHttpClient client;
     private final ObjectMapper mapper;
 
-    public StravaAuthClient(
+    private static final String TOKEN_URL =
+            "https://www.strava.com/oauth/token";
+
+
+    public StravaApiClient(
             OkHttpClient client,
             ObjectMapper mapper
     ) {
         this.client = client;
         this.mapper = mapper;
+    }
+
+    private <T> T get(
+            String url,
+            String token,
+            Class<T> responseType
+    ) throws IOException {
+
+        var request = new Request.Builder()
+                .url(url)
+                .header("Authorization",
+                        "Bearer " + token)
+                .build();
+
+        try (var response =
+                     client.newCall(request).execute()) {
+
+            if (!response.isSuccessful()) {
+                throw new IllegalStateException(
+                        "HTTP " + response.code()
+                );
+            }
+            return mapper.readValue(
+                    response.body().string(),
+                    responseType
+            );
+        }
+    }
+
+    public List<Activity> getActivities(String token) throws IOException {
+       return  Arrays.stream(get(
+                "https://www.strava.com/api/v3/athlete/activities",
+                token,
+                Activity[].class
+        )).toList();
     }
 
     public StravaTokenResponse exchangeCode(

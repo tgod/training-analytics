@@ -1,6 +1,6 @@
-package com.tgod.training_analytics.domain.strava.repository;
+package com.tgod.training_analytics.domain.activities.repository;
 
-import com.tgod.training_analytics.domain.strava.model.StravaToken;
+import com.tgod.training_analytics.domain.activities.model.StravaToken;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

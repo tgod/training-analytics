@@ -1,10 +1,9 @@
-package com.tgod.training_analytics.adapters.strava.controller;
+package com.tgod.training_analytics.adapters.activities.controller;
 
-import com.tgod.training_analytics.adapters.strava.client.StravaAuthClient;
-import com.tgod.training_analytics.adapters.strava.config.StravaProperties;
-import com.tgod.training_analytics.domain.strava.model.Activity;
-import com.tgod.training_analytics.domain.strava.usecase.AuthenticationCallbackUC;
-import com.tgod.training_analytics.domain.strava.usecase.GetActivitiesUseCase;
+import com.tgod.training_analytics.adapters.activities.config.StravaProperties;
+import com.tgod.training_analytics.domain.activities.model.Activity;
+import com.tgod.training_analytics.domain.activities.usecase.AuthenticationCallbackUC;
+import com.tgod.training_analytics.domain.activities.usecase.GetActivitiesUseCase;
 import okhttp3.HttpUrl;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.net.URI;
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 public class StravaController {
-
-    @Autowired
-    StravaAuthClient authClient;
 
     @Autowired
     AuthenticationCallbackUC authCallbackUC;
@@ -88,7 +85,7 @@ public class StravaController {
 
 
     @GetMapping("/strava/activities")
-    public Activity[] getActivities(Principal principal) throws IOException {
+    public List<Activity> getActivities(Principal principal) throws IOException {
         return getActivitiesUseCase.getActivities(principal.getName());
     }
 

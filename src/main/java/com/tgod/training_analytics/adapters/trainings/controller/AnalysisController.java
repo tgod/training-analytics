@@ -2,7 +2,7 @@ package com.tgod.training_analytics.adapters.trainings.controller;
 
 import com.example.api.InsightsApi;
 import com.example.model.InsightDto;
-import com.tgod.training_analytics.domain.strava.usecase.GetActivitiesUseCase;
+import com.tgod.training_analytics.domain.activities.usecase.GetActivitiesUseCase;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 

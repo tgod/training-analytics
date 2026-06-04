@@ -1,9 +1,9 @@
-package com.tgod.training_analytics.domain.strava.usecase;
+package com.tgod.training_analytics.domain.activities.usecase;
 
-import com.tgod.training_analytics.adapters.strava.client.StravaAuthClient;
-import com.tgod.training_analytics.adapters.strava.config.StravaProperties;
-import com.tgod.training_analytics.domain.strava.model.StravaToken;
-import com.tgod.training_analytics.domain.strava.repository.StravaTokenRepository;
+import com.tgod.training_analytics.adapters.activities.client.StravaApiClient;
+import com.tgod.training_analytics.adapters.activities.config.StravaProperties;
+import com.tgod.training_analytics.domain.activities.model.StravaToken;
+import com.tgod.training_analytics.domain.activities.repository.StravaTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,14 +14,14 @@ import java.time.Instant;
 public class AuthenticationCallbackUC {
 
     @Autowired
-    private StravaAuthClient authClient; //TODO: Interface
+    private StravaApiClient apiClient; //TODO: Interface
 
     @Autowired
     private StravaTokenRepository repository;
 
 
     public void handleCallback(String code, String username, StravaProperties properties) throws IOException {
-        var response = authClient.exchangeCode(
+        var response = apiClient.exchangeCode(
                 code,
                 properties.clientId(),
                 properties.clientSecret()
