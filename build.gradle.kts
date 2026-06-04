@@ -3,10 +3,12 @@ plugins {
 	id("org.springframework.boot") version "4.0.6"
 	id("io.spring.dependency-management") version "1.1.7"
 	id("org.openapi.generator") version "7.7.0"
+	jacoco
 }
 
 group = "com.tgod"
 version = "0.0.1-SNAPSHOT"
+
 
 java {
 	toolchain {
@@ -14,6 +16,9 @@ java {
 	}
 }
 
+jacoco {
+	toolVersion = "0.8.14"
+}
 repositories {
 	mavenCentral()
 }
@@ -79,4 +84,19 @@ tasks.compileJava {
 
 tasks.clean {
 	delete("$buildDir/generated")
+}
+
+tasks.test {
+	useJUnitPlatform()
+	finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+	dependsOn(tasks.test)
+
+	reports {
+		xml.required.set(true)
+		html.required.set(true)
+		csv.required.set(false)
+	}
 }
