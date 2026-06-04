@@ -1,4 +1,4 @@
-package com.tgod.training_analytics.adapters.activities.model;
+package com.tgod.training_analytics.adapters.strava.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.tgod.training_analytics.domain.activities.model.Athlete;

@@ -39,9 +39,8 @@ management:
         include: health,info,metrics,prometheus,mappings
 
 openai:
-  apiKey: ${OPENAI_API_KEY:apikey}
-  organizationId: XXX
-  projectId: XXX
+  apiKey: ${OPENAI_API_KEY}
+  model: gpt-4o-mini
 strava:
   client-id: 254561
   client-secret: ${STRAVA_CLIENT_SECRET:strava-secret}

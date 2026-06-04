@@ -1,6 +1,6 @@
-package com.tgod.training_analytics.adapters.activities.controller;
+package com.tgod.training_analytics.adapters.strava.controller;
 
-import com.tgod.training_analytics.adapters.activities.config.StravaProperties;
+import com.tgod.training_analytics.adapters.strava.config.StravaProperties;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import com.tgod.training_analytics.domain.activities.usecase.AuthenticationCallbackUC;
 import com.tgod.training_analytics.domain.activities.usecase.GetActivitiesUseCase;

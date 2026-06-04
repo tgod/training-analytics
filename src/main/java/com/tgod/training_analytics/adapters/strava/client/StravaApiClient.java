@@ -1,7 +1,7 @@
-package com.tgod.training_analytics.adapters.activities.client;
+package com.tgod.training_analytics.adapters.strava.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tgod.training_analytics.adapters.activities.model.StravaTokenResponse;
+import com.tgod.training_analytics.adapters.strava.model.StravaTokenResponse;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -20,7 +20,8 @@ public class StravaApiClient {
 
     private static final String TOKEN_URL =
             "https://www.strava.com/oauth/token";
-
+    private static final String ACTIVITIES_URL =
+            "https://www.strava.com/api/v3/athlete/activities";
 
     public StravaApiClient(
             OkHttpClient client,
@@ -59,7 +60,7 @@ public class StravaApiClient {
 
     public List<Activity> getActivities(String token) throws IOException {
        return  Arrays.stream(get(
-                "https://www.strava.com/api/v3/athlete/activities",
+                ACTIVITIES_URL,
                 token,
                 Activity[].class
         )).toList();

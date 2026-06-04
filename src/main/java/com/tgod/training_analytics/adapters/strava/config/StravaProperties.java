@@ -1,4 +1,4 @@
-package com.tgod.training_analytics.adapters.activities.config;
+package com.tgod.training_analytics.adapters.strava.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

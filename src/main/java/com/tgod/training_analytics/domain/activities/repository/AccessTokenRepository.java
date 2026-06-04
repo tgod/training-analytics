@@ -5,7 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
-public interface StravaTokenRepository
+public interface AccessTokenRepository
         extends CrudRepository<AccessToken, Long> {
 
     Optional<AccessToken> findByUsername(String username);
