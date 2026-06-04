@@ -4,69 +4,31 @@ info:
   version: 1.0.0
 
 paths:
-  /users/{id}:
-    get:
-      tags:
-        - Users
-      operationId: getUser
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserDto"
-
-  /trainings/insights/:
+  /trainings/insights:
     get:
       tags:
         - Insights
-      operationId: getInsight
-      parameters:
-        - name: id
-          in: query
-          required: false
-          schema:
-            type: integer
-            format: int64
+      operationId: getInsights
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/InsightDto"
-
+                $ref: "#/components/schemas/TrainingAnalysisDto"
 
 components:
   schemas:
-    UserDto:
+    TrainingAnalysisDto:
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-        username:
+        loadLevel:
           type: string
-        email:
+        nextWeekRecommendation:
           type: string
-    InsightDto:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        username:
+        watchOut:
           type: string
-        insight:
-          type: string
-        updated_at:
-          type: string
-          format: date-time
+        observations:
+          type: array
+          items:
+            type: string

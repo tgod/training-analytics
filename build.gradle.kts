@@ -58,8 +58,8 @@ openApiGenerate {
 	inputSpec.set("$rootDir/src/main/resources/openapi.yaml")
 	outputDir.set("$buildDir/generated")
 
-	apiPackage.set("com.example.api")
-	modelPackage.set("com.example.model")
+	apiPackage.set("com.tgod.training_analytics.api")
+	modelPackage.set("com.tgod.training_analytics.api.model")
 
 	configOptions.set(
 		mapOf(

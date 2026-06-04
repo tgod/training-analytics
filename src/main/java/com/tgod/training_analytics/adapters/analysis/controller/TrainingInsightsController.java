@@ -1,15 +1,13 @@
 package com.tgod.training_analytics.adapters.analysis.controller;
 
-import com.example.api.InsightsApi;
-import com.example.model.InsightDto;
+import com.tgod.training_analytics.api.InsightsApi;
+import com.tgod.training_analytics.api.model.TrainingAnalysisDto;
 import com.tgod.training_analytics.domain.analysis.ActivityAnalisysService;
-import com.tgod.training_analytics.domain.analysis.model.TrainingAnalysis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.security.Principal;
 
 @RestController
 public class TrainingInsightsController implements InsightsApi {
@@ -18,13 +16,15 @@ public class TrainingInsightsController implements InsightsApi {
     private ActivityAnalisysService service;
 
     @Override
-    public ResponseEntity<InsightDto> getInsight(Long id) {
-        return null;
-    }
-
-    @GetMapping("/trainings/insights")
-    public ResponseEntity<TrainingAnalysis> getInsights(Principal principal) {
-        return ResponseEntity.ok(service.analyze(principal.getName(), 4));
+    public ResponseEntity<TrainingAnalysisDto> getInsights() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var analysis = service.analyze(authentication.getName(), 4);
+        var dto = new TrainingAnalysisDto()
+                .loadLevel(analysis.loadLevel())
+                .observations(analysis.observations())
+                .nextWeekRecommendation(analysis.nextWeekRecommendation())
+                .watchOut(analysis.watchOut());
+        return ResponseEntity.ok(dto);
     }
 
 }
