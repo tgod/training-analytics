@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-activities-table
+      author: tomek
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE activities (
+                  id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                  strava_id BIGINT NOT NULL,
+                  username VARCHAR(100) NOT NULL,
+                  activity_name VARCHAR(255),
+                  distance DOUBLE NOT NULL DEFAULT 0,
+                  moving_time INT NOT NULL DEFAULT 0,
+                  elapsed_time INT NOT NULL DEFAULT 0,
+                  type VARCHAR(100),
+                  sport_type VARCHAR(100),
+                  start_date VARCHAR(50),
+                  start_date_local VARCHAR(50),
+                  timezone VARCHAR(100),
+                  total_elevation_gain DOUBLE NOT NULL DEFAULT 0,
+                  average_speed DOUBLE NOT NULL DEFAULT 0,
+                  max_speed DOUBLE NOT NULL DEFAULT 0,
+                  average_heartrate DOUBLE,
+                  max_heartrate DOUBLE,
+                  average_cadence DOUBLE,
+                  average_watts DOUBLE,
+                  weighted_average_watts DOUBLE,
+                  average_temp INT,
+                  kilojoules DOUBLE,
+                  trainer BOOLEAN NOT NULL DEFAULT FALSE,
+                  commute BOOLEAN NOT NULL DEFAULT FALSE,
+                  achievement_count INT NOT NULL DEFAULT 0,
+                  kudos_count INT NOT NULL DEFAULT 0,
+                  suffer_score DOUBLE,
+                  elev_high DOUBLE NOT NULL DEFAULT 0,
+                  elev_low DOUBLE NOT NULL DEFAULT 0,
+                  CONSTRAINT uk_activities_strava_id UNIQUE (strava_id)
+              );

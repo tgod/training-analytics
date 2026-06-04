@@ -1,11 +1,13 @@
 package com.tgod.training_analytics.domain.activities.usecase;
 
+import com.tgod.training_analytics.domain.activities.event.ActivityCreated;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import com.tgod.training_analytics.domain.activities.model.ActivityEntity;
 import com.tgod.training_analytics.domain.activities.repository.ActivityRepository;
 import com.tgod.training_analytics.domain.common.TimeProvider;
 import com.tgod.training_analytics.domain.ports.activities.SportActivitiesDataPort;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -29,6 +31,9 @@ public class SyncActivitiesUC {
     @Autowired
     private TimeProvider timeProvider;
 
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
     public List<Activity> execute(String username) throws IOException {
         var token = accessTokenUC.getByUsername(username);
         var after = activityRepository.findTopByUsernameOrderByStartDateDesc(username)
@@ -43,6 +48,7 @@ public class SyncActivitiesUC {
             activityRepository.save(entity);
             if (maybeExisting.isEmpty()) {
                 newActivities.add(activity);
+                eventPublisher.publishEvent(new ActivityCreated(username, activity.id(), activity.name()));
             }
         }
         return newActivities;
