@@ -1,9 +1,9 @@
 package com.tgod.training_analytics.adapters.strava.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tgod.training_analytics.domain.activities.model.Activity;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
-import com.tgod.training_analytics.domain.activities.model.Activity;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

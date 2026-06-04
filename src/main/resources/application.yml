@@ -45,3 +45,4 @@ strava:
   client-id: 254561
   client-secret: ${STRAVA_CLIENT_SECRET:strava-secret}
   redirect-uri: http://localhost:8080/api/strava/callback
+  base-url: https://www.strava.com

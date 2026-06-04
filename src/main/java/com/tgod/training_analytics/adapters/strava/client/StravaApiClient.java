@@ -23,7 +23,7 @@ public class StravaApiClient {
     public StravaApiClient(
             OkHttpClient client,
             ObjectMapper mapper,
-            @Value("${strava.base-url:https://www.strava.com}") String baseUrl
+            @Value("${strava.base-url}") String baseUrl
     ) {
         this.client = client;
         this.mapper = mapper;
