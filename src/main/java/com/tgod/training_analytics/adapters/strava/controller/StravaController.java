@@ -35,7 +35,7 @@ public class StravaController {
     public ResponseEntity<Void> login(Principal principal) {
 
         var url = HttpUrl.parse(
-                        "https://www.strava.com/oauth/authorize"
+                        properties.baseUrl()+"/oauth/authorize"
                 ).newBuilder()
                 .addQueryParameter(
                         "client_id",
