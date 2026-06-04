@@ -44,7 +44,7 @@ class GetActivitiesUCTest {
                         false, false, 0, 3, null, 50, 10)
         );
         when(accessTokenUC.getByUsername(USERNAME)).thenReturn(token);
-        when(service.getActivities(ACCESS_TOKEN, 4)).thenReturn(activities);
+        when(service.getActivities(ACCESS_TOKEN, 30)).thenReturn(activities);
 
         //when
         List<Activity> result = uc.getActivities(USERNAME);

@@ -19,7 +19,7 @@ public class GetActivitiesUC {
 
     public List<Activity> getActivities(String username) throws IOException {
         var token = accessTokenUC.getByUsername(username);
-        return service.getActivities(token.getAccessToken(), 4);
+        return service.getActivities(token.getAccessToken(), 30);
     }
 
 }

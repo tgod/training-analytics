@@ -2,6 +2,7 @@ package com.tgod.training_analytics.adapters.strava;
 
 import com.tgod.training_analytics.adapters.strava.client.StravaApiClient;
 import com.tgod.training_analytics.adapters.strava.client.StravaApiException;
+import com.tgod.training_analytics.common.TimeProvider;
 import com.tgod.training_analytics.domain.activities.exception.ActivitiesFetchException;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,6 +26,9 @@ class SportActivitiesDataAdapterTest {
     @Mock
     private StravaApiClient client;
 
+    @Mock
+    private TimeProvider timeProvider;
+
     @InjectMocks
     private SportActivitiesDataAdapter adapter;
 
@@ -31,11 +37,15 @@ class SportActivitiesDataAdapterTest {
     @Test
     void shouldReturnsActivitiesFromClient() throws IOException {
         //given
+        var now = Instant.now();
+        when(timeProvider.getTime()).thenReturn(now);
+        long afterTimestamp = now.minus(30, ChronoUnit.DAYS).getEpochSecond();
         List<Activity> activities = List.of(activity());
-        when(client.getActivities(TOKEN)).thenReturn(activities);
+
+        when(client.getActivities(TOKEN, afterTimestamp, 1, 100)).thenReturn(activities);
 
         //when
-        List<Activity> result = adapter.getActivities(TOKEN, 4);
+        List<Activity> result = adapter.getActivities(TOKEN, 30);
 
         //then
         assertThat(result).isEqualTo(activities);
@@ -44,10 +54,13 @@ class SportActivitiesDataAdapterTest {
     @Test
     void shouldWrapIOExceptionInActivitiesFetchException() throws IOException {
         //given
-        when(client.getActivities(TOKEN)).thenThrow(new IOException("connection refused"));
+        var now = Instant.now();
+        when(timeProvider.getTime()).thenReturn(now);
+        long afterTimestamp = now.minus(30, ChronoUnit.DAYS).getEpochSecond();
+        when(client.getActivities(TOKEN, afterTimestamp, 1, 100)).thenThrow(new IOException("connection refused"));
 
         //when / then
-        assertThatThrownBy(() -> adapter.getActivities(TOKEN, 4))
+        assertThatThrownBy(() -> adapter.getActivities(TOKEN, 30))
                 .isInstanceOf(ActivitiesFetchException.class)
                 .hasMessageContaining("Network error")
                 .hasCauseInstanceOf(IOException.class);
@@ -56,10 +69,13 @@ class SportActivitiesDataAdapterTest {
     @Test
     void shouldWrapStravaApiExceptionInActivitiesFetchException() throws IOException {
         //given
-        when(client.getActivities(TOKEN)).thenThrow(new StravaApiException(401, "Unauthorized"));
+        var now = Instant.now();
+        when(timeProvider.getTime()).thenReturn(now);
+        long afterTimestamp = now.minus(30, ChronoUnit.DAYS).getEpochSecond();
+        when(client.getActivities(TOKEN, afterTimestamp, 1, 100)).thenThrow(new StravaApiException(401, "Unauthorized"));
 
         //when / then
-        assertThatThrownBy(() -> adapter.getActivities(TOKEN, 4))
+        assertThatThrownBy(() -> adapter.getActivities(TOKEN, 30))
                 .isInstanceOf(ActivitiesFetchException.class)
                 .hasMessageContaining("Strava API returned an error")
                 .hasCauseInstanceOf(StravaApiException.class);

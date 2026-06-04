@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface SportActivitiesDataPort {
 
-    List<Activity> getActivities(String token, int weeks);
+    List<Activity> getActivities(String token, int days);
 
 }

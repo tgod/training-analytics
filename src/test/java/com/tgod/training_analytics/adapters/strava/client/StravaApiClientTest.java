@@ -11,6 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,9 +62,9 @@ class StravaApiClientTest {
                         }]
                         """)
                 .build());
-
+        var afterTimestamp = Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond();
         //when
-        List<Activity> activities = client.getActivities("token");
+        List<Activity> activities = client.getActivities("token", afterTimestamp, 1, 100);
 
         //then
         assertThat(activities).hasSize(1);
@@ -74,9 +76,11 @@ class StravaApiClientTest {
     void shouldThrowOnUnauthorizedInGetActivities() {
         //given
         server.enqueue(new MockResponse.Builder().code(401).build());
+        var afterTimestamp = Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond();
+        //when
 
         //when / then
-        assertThatThrownBy(() -> client.getActivities("expired-token"))
+        assertThatThrownBy(() -> client.getActivities("expired-token", afterTimestamp, 1, 100))
                 .isInstanceOf(StravaApiException.class)
                 .hasMessageContaining("invalid or expired")
                 .extracting(e -> ((StravaApiException) e).getHttpStatus())
@@ -87,9 +91,9 @@ class StravaApiClientTest {
     void shouldThrowOnRateLimitInGetActivities() {
         //given
         server.enqueue(new MockResponse.Builder().code(429).build());
-
+        var afterTimestamp = Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond();
         //when / then
-        assertThatThrownBy(() -> client.getActivities("token"))
+        assertThatThrownBy(() -> client.getActivities("token", afterTimestamp, 1, 100))
                 .isInstanceOf(StravaApiException.class)
                 .hasMessageContaining("Rate limit exceeded")
                 .extracting(e -> ((StravaApiException) e).getHttpStatus())
@@ -100,9 +104,10 @@ class StravaApiClientTest {
     void shouldThrowOnServerErrorInGetActivities() {
         //given
         server.enqueue(new MockResponse.Builder().code(500).build());
+        var afterTimestamp = Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond();
 
         //when / then
-        assertThatThrownBy(() -> client.getActivities("token"))
+        assertThatThrownBy(() -> client.getActivities("token", afterTimestamp, 1, 100))
                 .isInstanceOf(StravaApiException.class)
                 .hasMessageContaining("Strava server error")
                 .extracting(e -> ((StravaApiException) e).getHttpStatus())
