@@ -5,6 +5,7 @@ import com.tgod.training_analytics.adapters.strava.config.StravaProperties;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import com.tgod.training_analytics.domain.activities.usecase.AuthenticationCallbackUC;
 import com.tgod.training_analytics.domain.activities.usecase.GetActivitiesUC;
+import com.tgod.training_analytics.domain.activities.usecase.SyncActivitiesUC;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -35,6 +36,9 @@ class StravaControllerTest {
 
     @MockitoBean
     private GetActivitiesUC getActivitiesUC;
+
+    @MockitoBean
+    private SyncActivitiesUC syncActivitiesUC;
 
     @MockitoBean
     private StravaProperties stravaProperties;

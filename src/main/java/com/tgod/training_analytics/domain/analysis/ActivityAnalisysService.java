@@ -3,6 +3,7 @@ package com.tgod.training_analytics.domain.analysis;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import com.tgod.training_analytics.domain.activities.usecase.AccessTokenUC;
 import com.tgod.training_analytics.domain.analysis.model.TrainingAnalysis;
+import com.tgod.training_analytics.domain.common.TimeProvider;
 import com.tgod.training_analytics.domain.openai.PromptBuilderService;
 import com.tgod.training_analytics.domain.ports.activities.SportActivitiesDataPort;
 import com.tgod.training_analytics.domain.ports.openai.LLMPort;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -29,17 +31,20 @@ public class ActivityAnalisysService {
     private PromptBuilderService promptBuilder;
     @Autowired
     private AccessTokenUC accessTokenUC;
+    @Autowired
+    private TimeProvider timeProvider;
 
     public TrainingAnalysis analyze(String username, int weeks) {
-        List<Activity> activities = getActivities(username, weeks);
+        List<Activity> activities = getActivities(username, weeks*7);
         String systemPrompt = loadSystemPrompt();
         String userPrompt = promptBuilder.buildUserPrompt(activities, weeks);
         return llmPort.analyze(systemPrompt, userPrompt);
     }
 
-    private List<Activity> getActivities(String username, int weeks) {
+    private List<Activity> getActivities(String username, int days) {
         var token = accessTokenUC.getByUsername(username);
-        return stravaPort.getActivities(token.getAccessToken(), weeks);
+        var after = timeProvider.getTime().minus(days, ChronoUnit.DAYS);
+        return stravaPort.getActivities(token.getAccessToken(), after);
     }
 
     private String loadSystemPrompt() {

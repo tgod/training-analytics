@@ -69,6 +69,20 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ActivityDto"
+  /strava/activities/sync:
+    get:
+      tags:
+        - Strava
+      operationId: syncStravaActivities
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityDto"
 
 components:
   schemas:

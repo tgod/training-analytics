@@ -3,6 +3,7 @@ package com.tgod.training_analytics.domain.activities.usecase;
 import com.tgod.training_analytics.domain.activities.exception.TokenNotFoundException;
 import com.tgod.training_analytics.domain.activities.model.AccessToken;
 import com.tgod.training_analytics.domain.activities.model.Activity;
+import com.tgod.training_analytics.domain.common.TimeProvider;
 import com.tgod.training_analytics.domain.ports.activities.SportActivitiesDataPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +29,9 @@ class GetActivitiesUCTest {
     @Mock
     private AccessTokenUC accessTokenUC;
 
+    @Mock
+    private TimeProvider timeProvider;
+
     @InjectMocks
     private GetActivitiesUC uc;
 
@@ -36,6 +41,7 @@ class GetActivitiesUCTest {
     @Test
     void returnsActivitiesForUser() throws IOException {
         //given
+        var now = Instant.parse("2026-06-01T00:00:00Z");
         var token = new AccessToken(USERNAME, 42L, ACCESS_TOKEN, "refresh", Instant.parse("2026-12-01T00:00:00Z"));
         var activities = List.of(
                 new Activity(1L, "Morning Run", 10000, 3600, 3600, "Run", "Run",
@@ -43,8 +49,9 @@ class GetActivitiesUCTest {
                         100, 2.8, 4.0, 145.0, 170.0, null, null, null, null, null,
                         false, false, 0, 3, null, 50, 10)
         );
+        when(timeProvider.getTime()).thenReturn(now);
         when(accessTokenUC.getByUsername(USERNAME)).thenReturn(token);
-        when(service.getActivities(ACCESS_TOKEN, 30)).thenReturn(activities);
+        when(service.getActivities(ACCESS_TOKEN, now.minus(30, ChronoUnit.DAYS))).thenReturn(activities);
 
         //when
         List<Activity> result = uc.getActivities(USERNAME);

@@ -5,6 +5,7 @@ import com.tgod.training_analytics.domain.activities.model.AccessToken;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import com.tgod.training_analytics.domain.activities.usecase.AccessTokenUC;
 import com.tgod.training_analytics.domain.analysis.model.TrainingAnalysis;
+import com.tgod.training_analytics.domain.common.TimeProvider;
 import com.tgod.training_analytics.domain.openai.PromptBuilderService;
 import com.tgod.training_analytics.domain.ports.activities.SportActivitiesDataPort;
 import com.tgod.training_analytics.domain.ports.openai.LLMPort;
@@ -19,6 +20,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,6 +38,8 @@ class ActivityAnalisysServiceTest {
     private PromptBuilderService promptBuilder;
     @Mock
     private AccessTokenUC accessTokenUC;
+    @Mock
+    private TimeProvider timeProvider;
 
     @InjectMocks
     private ActivityAnalisysService service;
@@ -43,6 +47,7 @@ class ActivityAnalisysServiceTest {
     private static final String USERNAME = "admin";
     private static final String ACCESS_TOKEN = "access-token";
     private static final String SYSTEM_PROMPT = "You are a coach.";
+    private static final Instant NOW = Instant.parse("2026-06-01T00:00:00Z");
 
     @BeforeEach
     void setUp() {
@@ -58,8 +63,9 @@ class ActivityAnalisysServiceTest {
         var userPrompt = "Analyze 4 weeks of training...";
         var expected = new TrainingAnalysis("moderate", List.of("Good volume"), "Keep it up", "Watch HR");
 
+        when(timeProvider.getTime()).thenReturn(NOW);
         when(accessTokenUC.getByUsername(USERNAME)).thenReturn(token);
-        when(stravaPort.getActivities(ACCESS_TOKEN, 4)).thenReturn(activities);
+        when(stravaPort.getActivities(ACCESS_TOKEN, NOW.minus(4*7, ChronoUnit.DAYS))).thenReturn(activities);
         when(promptBuilder.buildUserPrompt(activities, 4)).thenReturn(userPrompt);
         when(llmPort.analyze(SYSTEM_PROMPT, userPrompt)).thenReturn(expected);
 

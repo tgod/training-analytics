@@ -7,6 +7,7 @@ import com.tgod.training_analytics.domain.activities.exception.ActivitiesFetchEx
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import com.tgod.training_analytics.domain.activities.usecase.AuthenticationCallbackUC;
 import com.tgod.training_analytics.domain.activities.usecase.GetActivitiesUC;
+import com.tgod.training_analytics.domain.activities.usecase.SyncActivitiesUC;
 import okhttp3.HttpUrl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,9 @@ public class StravaController implements StravaApi {
     private GetActivitiesUC getActivitiesUC;
 
     @Autowired
+    private SyncActivitiesUC syncActivitiesUC;
+
+    @Autowired
     private StravaProperties properties;
 
     @Override
@@ -45,6 +49,18 @@ public class StravaController implements StravaApi {
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create(url.toString()))
                 .build();
+    }
+
+    @Override
+    public ResponseEntity<List<ActivityDto>> syncStravaActivities() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            List<Activity> activities = syncActivitiesUC.execute(authentication.getName());
+            return ResponseEntity.ok(activities.stream().map(this::toDto).toList());
+        } catch (IOException e) {
+            throw new ActivitiesFetchException("Failed to fetch activities", e);
+        }
+
     }
 
     @Override
