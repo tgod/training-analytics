@@ -4,6 +4,6 @@ import com.tgod.training_analytics.domain.activities.model.AccessToken;
 
 public interface SportActivitiesTokenService {
 
-    AccessToken getToken(String code);
+    AccessToken getToken(String username, String code);
 
 }

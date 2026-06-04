@@ -79,7 +79,7 @@ public class StravaController {
             @RequestParam String code,
             @PathVariable String username
     ) throws IOException {
-        authCallbackUC.handleCallback(code, username, properties);
+        authCallbackUC.handleCallback(code, username);
         return "Authenticated";
     }
 
