@@ -1,26 +1,26 @@
 package com.tgod.training_analytics.adapters.strava.controller;
 
 import com.tgod.training_analytics.adapters.strava.config.StravaProperties;
+import com.tgod.training_analytics.api.StravaApi;
+import com.tgod.training_analytics.api.model.ActivityDto;
+import com.tgod.training_analytics.domain.activities.exception.ActivitiesFetchException;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import com.tgod.training_analytics.domain.activities.usecase.AuthenticationCallbackUC;
 import com.tgod.training_analytics.domain.activities.usecase.GetActivitiesUC;
 import okhttp3.HttpUrl;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.net.URI;
-import java.security.Principal;
 import java.util.List;
 
 @RestController
-public class StravaController {
+public class StravaController implements StravaApi {
 
     @Autowired
     private AuthenticationCallbackUC authCallbackUC;
@@ -31,57 +31,71 @@ public class StravaController {
     @Autowired
     private StravaProperties properties;
 
-    @GetMapping("/strava/login")
-    public ResponseEntity<Void> login(Principal principal) {
-
-        var url = HttpUrl.parse(
-                        properties.baseUrl()+"/oauth/authorize"
-                ).newBuilder()
-                .addQueryParameter(
-                        "client_id",
-                        properties.clientId()
-                )
-                .addQueryParameter(
-                        "response_type",
-                        "code"
-                )
-                .addQueryParameter(
-                        "redirect_uri",
-                        getRedirectUri(principal)
-                )
-                .addQueryParameter(
-                        "scope",
-                        "read,activity:read_all"
-                )
-                .addQueryParameter(
-                        "approval_prompt",
-                        "auto"
-                )
+    @Override
+    public ResponseEntity<Void> stravaLogin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var url = HttpUrl.parse(properties.baseUrl() + "/oauth/authorize")
+                .newBuilder()
+                .addQueryParameter("client_id", properties.clientId())
+                .addQueryParameter("response_type", "code")
+                .addQueryParameter("redirect_uri", getRedirectUri(authentication.getName()))
+                .addQueryParameter("scope", "read,activity:read_all")
+                .addQueryParameter("approval_prompt", "auto")
                 .build();
-
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create(url.toString()))
                 .build();
     }
 
-    @NotNull
-    private String getRedirectUri(Principal principal) {
-        return "%s/%s".formatted(properties.redirectUri(), principal.getName());
-    }
-
-    @GetMapping("/strava/callback/{username}")
-    public String callback(
-            @RequestParam String code,
-            @PathVariable String username
-    ) throws IOException {
+    @Override
+    public ResponseEntity<Void> stravaCallback(String username, String code) {
         authCallbackUC.handleCallback(code, username);
-        return "Authenticated";
+        return ResponseEntity.ok().build();
     }
 
-
-    @GetMapping("/strava/activities")
-    public List<Activity> getActivities(Principal principal) throws IOException {
-        return getActivitiesUC.getActivities(principal.getName());
+    @Override
+    public ResponseEntity<List<ActivityDto>> getStravaActivities() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            var activities = getActivitiesUC.getActivities(authentication.getName());
+            return ResponseEntity.ok(activities.stream().map(this::toDto).toList());
+        } catch (IOException e) {
+            throw new ActivitiesFetchException("Failed to fetch activities", e);
+        }
     }
 
+    private String getRedirectUri(String username) {
+        return "%s/%s".formatted(properties.redirectUri(), username);
+    }
+
+    private ActivityDto toDto(Activity a) {
+        return new ActivityDto()
+                .id(a.id())
+                .name(a.name())
+                .distance(a.distance())
+                .movingTime(a.movingTime())
+                .elapsedTime(a.elapsedTime())
+                .type(a.type())
+                .sportType(a.sportType())
+                .startDate(a.startDate())
+                .startDateLocal(a.startDateLocal())
+                .timezone(a.timezone())
+                .totalElevationGain(a.totalElevationGain())
+                .averageSpeed(a.averageSpeed())
+                .maxSpeed(a.maxSpeed())
+                .averageHeartrate(a.averageHeartrate())
+                .maxHeartrate(a.maxHeartrate())
+                .averageCadence(a.averageCadence())
+                .averageWatts(a.averageWatts())
+                .weightedAverageWatts(a.weightedAverageWatts())
+                .averageTemp(a.averageTemp())
+                .kilojoules(a.kilojoules())
+                .trainer(a.trainer())
+                .commute(a.commute())
+                .achievementCount(a.achievementCount())
+                .kudosCount(a.kudosCount())
+                .sufferScore(a.sufferScore())
+                .elevHigh(a.elevHigh())
+                .elevLow(a.elevLow());
+    }
 }
