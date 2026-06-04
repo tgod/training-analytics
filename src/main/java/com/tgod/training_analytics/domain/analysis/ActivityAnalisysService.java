@@ -7,19 +7,20 @@ import com.tgod.training_analytics.domain.openai.PromptBuilderService;
 import com.tgod.training_analytics.domain.ports.activities.SportActivitiesDataPort;
 import com.tgod.training_analytics.domain.ports.openai.LLMPort;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 @Service
 public class ActivityAnalisysService {
 
-    private static final String SYSTEM_PROMPT = """
-        You are an expert endurance sports coach and exercise physiologist.
-        Analyze athlete training data and provide actionable, evidence-based feedback.
-        Be concise, specific, and encouraging. Avoid generic advice.
-        Always respond with valid JSON only — no markdown, no explanation outside JSON.
-        """;
+    @Value("classpath:prompts/analysis-system-prompt.txt")
+    private Resource systemPromptResource;
+
     @Autowired
     private SportActivitiesDataPort stravaPort;
     @Autowired
@@ -31,13 +32,22 @@ public class ActivityAnalisysService {
 
     public TrainingAnalysis analyze(String username, int weeks) {
         List<Activity> activities = getActivities(username, weeks);
+        String systemPrompt = loadSystemPrompt();
         String userPrompt = promptBuilder.buildUserPrompt(activities, weeks);
-        return llmPort.analyze(SYSTEM_PROMPT, userPrompt);
+        return llmPort.analyze(systemPrompt, userPrompt);
     }
 
     private List<Activity> getActivities(String username, int weeks) {
         var token = accessTokenUC.getByUsername(username);
         return stravaPort.getActivities(token.getAccessToken(), weeks);
+    }
+
+    private String loadSystemPrompt() {
+        try {
+            return systemPromptResource.getContentAsString(UTF_8);
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException("Failed to load system prompt", e);
+        }
     }
 
 }

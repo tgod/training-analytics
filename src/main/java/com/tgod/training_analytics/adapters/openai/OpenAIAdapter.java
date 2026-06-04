@@ -54,7 +54,6 @@ public class OpenAIAdapter implements LLMPort {
         }
     }
 
-
     private String buildRequestBody(String systemPrompt, String userPrompt) {
         var messages = List.of(
                 Map.of("role", "system", "content", systemPrompt),
@@ -65,7 +64,6 @@ public class OpenAIAdapter implements LLMPort {
                 "messages", messages
         ));
     }
-
 
     private TrainingAnalysis parseResponse(String json) {
         String cleaned = json.strip()
