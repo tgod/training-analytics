@@ -1,6 +1,6 @@
 # Training Load Analyst
 
-Fetches the last N weeks of Strava activities, sends structured data (distance, elevation, heart rate, pace trends) to an LLM, and returns a human-friendly overview of the training load assessment and next-week recommendations.
+Fetches the last N days of Strava activities, sends structured data (distance, elevation, heart rate, pace trends) to an LLM, and returns a human-friendly overview of the training load assessment and next-week recommendations.
 
 ## How it works
 
