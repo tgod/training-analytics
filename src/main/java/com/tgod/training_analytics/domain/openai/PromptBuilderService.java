@@ -1,6 +1,7 @@
 package com.tgod.training_analytics.domain.openai;
 
 import com.tgod.training_analytics.domain.activities.model.Activity;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,34 +18,45 @@ public class PromptBuilderService {
         Map<String, List<Activity>> byWeek = groupByWeek(activities);
         String sport = detectSport(activities);
         double avgDaysPerWeek = (double) activities.size() / weeks;
+        var weeklyTrainingDays = String.format("%.1f", avgDaysPerWeek);
+        String recentActivities = getRecentActivities(activities);
+        String weeklySummaries = getWeeklySummaries(byWeek);
 
+        String userPrompt = """
+                Analyze the following training data for the past %s weeks and provide a training load assessment.
+
+                Athlete profile:
+                - Sport: %s
+                - Weekly training days: %s
+
+                Recent activities:
+                %s
+                Weekly summaries:
+                %s
+                Please provide:
+                1. Current training load assessment (easy / moderate / high / overreaching)
+                2. Key observations (2-3 bullet points)
+                3. Recommendation for next week
+                4. One thing to watch out for
+
+                Respond in JSON with keys: loadLevel, observations, nextWeekRecommendation, watchOut
+                """;
+        return userPrompt.formatted(weeks, sport, weeklyTrainingDays, recentActivities, weeklySummaries);
+    }
+
+    @NotNull
+    private String getWeeklySummaries(Map<String, List<Activity>> byWeek) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Analyze the following training data for the past ")
-                .append(weeks).append(" weeks and provide a training load assessment.\n\n");
+        byWeek.forEach((week, acts) -> sb.append(formatWeeklySummary(week, acts)).append("\n"));
+        return sb.toString();
+    }
 
-        sb.append("Athlete profile:\n")
-                .append("- Sport: ").append(sport).append("\n")
-                .append("- Weekly training days: ").append(String.format("%.1f", avgDaysPerWeek)).append("\n\n");
-
-        sb.append("Recent activities:\n");
+    @NotNull
+    private String getRecentActivities(List<Activity> activities) {
+        StringBuilder sb = new StringBuilder();
         for (Activity a : activities) {
             sb.append(formatActivity(a)).append("\n");
         }
-
-        sb.append("\nWeekly summaries:\n");
-        byWeek.forEach((week, acts) -> sb.append(formatWeeklySummary(week, acts)).append("\n"));
-
-        sb.append("""
-            
-            Please provide:
-            1. Current training load assessment (easy / moderate / high / overreaching)
-            2. Key observations (2-3 bullet points)
-            3. Recommendation for next week
-            4. One thing to watch out for
-            
-            Respond in JSON with keys: loadLevel, observations, nextWeekRecommendation, watchOut
-            """);
-
         return sb.toString();
     }
 
