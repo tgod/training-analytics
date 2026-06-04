@@ -1,6 +1,7 @@
-package com.tgod.training_analytics.domain.activities.model;
+package com.tgod.training_analytics.adapters.activities.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.tgod.training_analytics.domain.activities.model.Athlete;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record StravaTokenResponse(

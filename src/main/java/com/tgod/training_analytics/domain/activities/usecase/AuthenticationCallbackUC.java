@@ -2,7 +2,7 @@ package com.tgod.training_analytics.domain.activities.usecase;
 
 import com.tgod.training_analytics.adapters.activities.client.StravaApiClient;
 import com.tgod.training_analytics.adapters.activities.config.StravaProperties;
-import com.tgod.training_analytics.domain.activities.model.StravaToken;
+import com.tgod.training_analytics.domain.activities.model.AccessToken;
 import com.tgod.training_analytics.domain.activities.repository.StravaTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ public class AuthenticationCallbackUC {
                 properties.clientSecret()
         );
 
-        var token = new StravaToken(
+        var token = new AccessToken(
                 username,
                 response.athlete().id(),
                 response.access_token(),

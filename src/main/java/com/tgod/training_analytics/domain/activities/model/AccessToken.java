@@ -14,7 +14,7 @@ import java.time.Instant;
                 )
         }
 )
-public class StravaToken {
+public class AccessToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,11 +41,11 @@ public class StravaToken {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    protected StravaToken() {
+    protected AccessToken() {
         // JPA
     }
 
-    public StravaToken(
+    public AccessToken(
             String username,
             Long athleteId,
             String accessToken,

@@ -1,14 +1,14 @@
 package com.tgod.training_analytics.domain.activities.repository;
 
-import com.tgod.training_analytics.domain.activities.model.StravaToken;
+import com.tgod.training_analytics.domain.activities.model.AccessToken;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
 public interface StravaTokenRepository
-        extends CrudRepository<StravaToken, Long> {
+        extends CrudRepository<AccessToken, Long> {
 
-    Optional<StravaToken> findByUsername(String username);
+    Optional<AccessToken> findByUsername(String username);
 
-    Optional<StravaToken> findByAthleteId(Long athleteId);
+    Optional<AccessToken> findByAthleteId(Long athleteId);
 }
