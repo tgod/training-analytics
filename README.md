@@ -2,6 +2,11 @@
 
 Fetches the last N days of Strava activities, sends structured data (distance, elevation, heart rate, pace trends) to an LLM, and returns a human-friendly overview of the training load assessment and next-week recommendations.
 
+The project was created as a demo to show:
+- how to use hexagonal architecture in a spring boot app (simplified)
+- how to incorporate basic AI features in a real app
+- how to use API first approach (defining openapi schema first and generate api classes from it)
+
 ## How it works
 
 1. User authenticates via Strava OAuth2.
