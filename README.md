@@ -6,6 +6,7 @@ The project was created as a demo to show:
 - how to use hexagonal architecture in a spring boot app (simplified)
 - how to incorporate basic AI features in a real app
 - how to use API first approach (defining openapi schema first and generate api classes from it)
+- how to use domain events to share information in the app
 
 ## How it works
 
