@@ -48,9 +48,9 @@ public class StravaController implements StravaApi {
     }
 
     @Override
-    public ResponseEntity<Void> stravaCallback(String username, String code) {
+    public ResponseEntity<String> stravaCallback(String username, String code) {
         authCallbackUC.handleCallback(code, username);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("Authenticated");
     }
 
     @Override

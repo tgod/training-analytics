@@ -50,6 +50,10 @@ paths:
       responses:
         "200":
           description: Authentication successful
+          content:
+            text/plain:
+              schema:
+                type: string
 
   /strava/activities:
     get:
