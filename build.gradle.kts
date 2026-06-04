@@ -38,6 +38,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
 	testImplementation("org.testcontainers:junit-jupiter:1.21.3")
 	testImplementation("org.testcontainers:mysql:1.21.3")
+	testImplementation("com.squareup.okhttp3:mockwebserver:5.3.2")
 
 
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")

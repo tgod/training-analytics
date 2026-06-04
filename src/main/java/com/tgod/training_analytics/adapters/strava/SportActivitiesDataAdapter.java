@@ -1,6 +1,8 @@
 package com.tgod.training_analytics.adapters.strava;
 
 import com.tgod.training_analytics.adapters.strava.client.StravaApiClient;
+import com.tgod.training_analytics.adapters.strava.client.StravaApiException;
+import com.tgod.training_analytics.domain.activities.exception.ActivitiesFetchException;
 import com.tgod.training_analytics.domain.ports.activities.SportActivitiesDataPort;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +21,9 @@ public class SportActivitiesDataAdapter implements SportActivitiesDataPort {
         try {
             return client.getActivities(token);
         } catch (IOException e) {
-            // TODO: error handling
-            throw new RuntimeException(e);
+            throw new ActivitiesFetchException("Network error while fetching activities from Strava", e);
+        } catch (StravaApiException e) {
+            throw new ActivitiesFetchException("Strava API returned an error: " + e.getMessage(), e);
         }
     }
 }

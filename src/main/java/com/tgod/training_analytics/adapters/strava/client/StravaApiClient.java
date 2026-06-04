@@ -6,6 +6,7 @@ import com.tgod.training_analytics.domain.activities.model.Activity;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -17,18 +18,16 @@ public class StravaApiClient {
 
     private final OkHttpClient client;
     private final ObjectMapper mapper;
-
-    private static final String TOKEN_URL =
-            "https://www.strava.com/oauth/token";
-    private static final String ACTIVITIES_URL =
-            "https://www.strava.com/api/v3/athlete/activities";
+    private final String baseUrl;
 
     public StravaApiClient(
             OkHttpClient client,
-            ObjectMapper mapper
+            ObjectMapper mapper,
+            @Value("${strava.base-url:https://www.strava.com}") String baseUrl
     ) {
         this.client = client;
         this.mapper = mapper;
+        this.baseUrl = baseUrl;
     }
 
     private <T> T get(
@@ -39,28 +38,32 @@ public class StravaApiClient {
 
         var request = new Request.Builder()
                 .url(url)
-                .header("Authorization",
-                        "Bearer " + token)
+                .header("Authorization", "Bearer " + token)
                 .build();
 
-        try (var response =
-                     client.newCall(request).execute()) {
-
-            if (!response.isSuccessful()) {
-                throw new IllegalStateException(
-                        "HTTP " + response.code()
-                );
-            }
-            return mapper.readValue(
-                    response.body().string(),
-                    responseType
-            );
+        try (var response = client.newCall(request).execute()) {
+            checkResponse(response);
+            return mapper.readValue(bodyString(response), responseType);
         }
     }
 
+    private void checkResponse(okhttp3.Response response) {
+        if (!response.isSuccessful()) {
+            throw StravaApiException.forStatus(response.code());
+        }
+    }
+
+    private String bodyString(okhttp3.Response response) throws IOException {
+        var body = response.body();
+        if (body == null) {
+            throw new IOException("Empty response body");
+        }
+        return body.string();
+    }
+
     public List<Activity> getActivities(String token) throws IOException {
-       return  Arrays.stream(get(
-                ACTIVITIES_URL,
+        return Arrays.stream(get(
+                baseUrl + "/api/v3/athlete/activities",
                 token,
                 Activity[].class
         )).toList();
@@ -80,24 +83,13 @@ public class StravaApiClient {
                 .build();
 
         var request = new Request.Builder()
-                .url(TOKEN_URL)
+                .url(baseUrl + "/oauth/token")
                 .post(body)
                 .build();
 
         try (var response = client.newCall(request).execute()) {
-
-            if (!response.isSuccessful()) {
-                throw new IllegalStateException(
-                        "Strava token request failed: "
-                                + response.code()
-                );
-            }
-
-            var json = response.body().string();
-            return mapper.readValue(
-                    json,
-                    StravaTokenResponse.class
-            );
+            checkResponse(response);
+            return mapper.readValue(bodyString(response), StravaTokenResponse.class);
         }
     }
 }
