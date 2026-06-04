@@ -130,6 +130,14 @@ public class ActivityEntity {
         this.elevLow = activity.elevLow();
     }
 
+    public Activity toActivity() {
+        return new Activity(stravaId, name, distance, movingTime, elapsedTime, type, sportType,
+                startDate, startDateLocal, timezone, totalElevationGain, averageSpeed, maxSpeed,
+                averageHeartrate, maxHeartrate, averageCadence, averageWatts, weightedAverageWatts,
+                averageTemp, kilojoules, trainer, commute, achievementCount, kudosCount,
+                sufferScore, elevHigh, elevLow);
+    }
+
     public Long getId() { return id; }
     public Long getStravaId() { return stravaId; }
     public String getUsername() { return username; }

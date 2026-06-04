@@ -72,12 +72,8 @@ public class StravaController implements StravaApi {
     @Override
     public ResponseEntity<List<ActivityDto>> getStravaActivities() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        try {
-            var activities = getActivitiesUC.getActivities(authentication.getName());
-            return ResponseEntity.ok(activities.stream().map(this::toDto).toList());
-        } catch (IOException e) {
-            throw new ActivitiesFetchException("Failed to fetch activities", e);
-        }
+        var activities = getActivitiesUC.getActivities(authentication.getName());
+        return ResponseEntity.ok(activities.stream().map(this::toDto).toList());
     }
 
     private String getRedirectUri(String username) {
