@@ -1,4 +1,4 @@
-package com.tgod.training_analytics.common;
+package com.tgod.training_analytics.domain.common;
 
 import org.springframework.stereotype.Component;
 

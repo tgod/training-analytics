@@ -36,8 +36,19 @@ Fetches the last N days of Strava activities, sends structured data (distance, e
 | LLM      | OpenAI API |
 | Tests    | JUnit 5, Testcontainers, JaCoCo |
 
-## Prerequisites
 
+## Architecture
+
+The project uses simplified **Hexagonal Architecture** (Ports & Adapters) principles.
+It provides a clean separation between business logic and external concerns.
+
+The project is organized into two main layers:
+
+1. **Domain**: Pure business logic & domain models
+2. **Adapters**: Implementations that connect the domain to external systems
+
+
+## Prerequisites
 - Java 26+
 - Docker (for the database)
 - A [Strava API application](https://www.strava.com/settings/api) (client ID + secret)

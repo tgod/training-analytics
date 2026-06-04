@@ -1,4 +1,4 @@
-package com.tgod.training_analytics.common;
+package com.tgod.training_analytics.domain.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
