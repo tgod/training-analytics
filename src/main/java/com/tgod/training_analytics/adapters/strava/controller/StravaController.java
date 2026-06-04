@@ -3,7 +3,7 @@ package com.tgod.training_analytics.adapters.strava.controller;
 import com.tgod.training_analytics.adapters.strava.config.StravaProperties;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import com.tgod.training_analytics.domain.activities.usecase.AuthenticationCallbackUC;
-import com.tgod.training_analytics.domain.activities.usecase.GetActivitiesUseCase;
+import com.tgod.training_analytics.domain.activities.usecase.GetActivitiesUC;
 import okhttp3.HttpUrl;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class StravaController {
     AuthenticationCallbackUC authCallbackUC;
 
     @Autowired
-    GetActivitiesUseCase getActivitiesUseCase;
+    GetActivitiesUC getActivitiesUC;
 
     private final StravaProperties properties;
 
@@ -86,7 +86,7 @@ public class StravaController {
 
     @GetMapping("/strava/activities")
     public List<Activity> getActivities(Principal principal) throws IOException {
-        return getActivitiesUseCase.getActivities(principal.getName());
+        return getActivitiesUC.getActivities(principal.getName());
     }
 
 }

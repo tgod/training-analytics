@@ -1,7 +1,7 @@
 package com.tgod.training_analytics.domain.analysis;
 
 import com.tgod.training_analytics.domain.activities.model.Activity;
-import com.tgod.training_analytics.domain.activities.repository.AccessTokenRepository;
+import com.tgod.training_analytics.domain.activities.usecase.AccessTokenUC;
 import com.tgod.training_analytics.domain.analysis.model.TrainingAnalysis;
 import com.tgod.training_analytics.domain.openai.PromptBuilderService;
 import com.tgod.training_analytics.domain.ports.activities.SportActivitiesDataPort;
@@ -27,7 +27,7 @@ public class ActivityAnalisysService {
     @Autowired
     private PromptBuilderService promptBuilder;
     @Autowired
-    private AccessTokenRepository accessTokenRepository;
+    private AccessTokenUC accessTokenUC;
 
     public TrainingAnalysis analyze(String username, int weeks) {
         List<Activity> activities = getActivities(username, weeks);
@@ -36,12 +36,8 @@ public class ActivityAnalisysService {
     }
 
     private List<Activity> getActivities(String username, int weeks) {
-        var token = accessTokenRepository.findByUsername(username);
-        if(token.isEmpty()){
-            //TODO: error handling
-            throw new RuntimeException("no token");
-        }
-        return stravaPort.getActivities(token.get().getAccessToken(), weeks);
+        var token = accessTokenUC.getByUsername(username);
+        return stravaPort.getActivities(token.getAccessToken(), weeks);
     }
 
 }
