@@ -1,7 +1,7 @@
 package com.tgod.training_analytics.adapters.strava.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tgod.training_analytics.adapters.strava.model.StravaTokenResponse;
+import com.tgod.training_analytics.domain.strava.model.StravaTokenResponse;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

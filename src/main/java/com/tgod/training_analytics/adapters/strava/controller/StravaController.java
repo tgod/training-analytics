@@ -2,9 +2,9 @@ package com.tgod.training_analytics.adapters.strava.controller;
 
 import com.tgod.training_analytics.adapters.strava.client.StravaAuthClient;
 import com.tgod.training_analytics.adapters.strava.config.StravaProperties;
-import com.tgod.training_analytics.adapters.strava.model.Activity;
-import com.tgod.training_analytics.adapters.strava.usecase.AuthenticationCallbackUC;
-import com.tgod.training_analytics.adapters.strava.usecase.GetActivitiesUseCase;
+import com.tgod.training_analytics.domain.strava.model.Activity;
+import com.tgod.training_analytics.domain.strava.usecase.AuthenticationCallbackUC;
+import com.tgod.training_analytics.domain.strava.usecase.GetActivitiesUseCase;
 import okhttp3.HttpUrl;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,8 +1,8 @@
-package com.tgod.training_analytics.adapters.strava.usecase;
+package com.tgod.training_analytics.domain.strava.usecase;
 
 import com.tgod.training_analytics.adapters.strava.client.StravaApiClient;
-import com.tgod.training_analytics.adapters.strava.model.Activity;
-import com.tgod.training_analytics.adapters.strava.repository.StravaTokenRepository;
+import com.tgod.training_analytics.domain.strava.model.Activity;
+import com.tgod.training_analytics.domain.strava.repository.StravaTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +11,7 @@ import java.io.IOException;
 @Component
 public class GetActivitiesUseCase {
     @Autowired
-    private StravaApiClient apiClient;
+    private StravaApiClient apiClient; //TODO: interface
     @Autowired
     private StravaTokenRepository repository;
 
