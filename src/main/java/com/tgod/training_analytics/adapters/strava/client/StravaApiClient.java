@@ -41,7 +41,7 @@ public class StravaApiClient {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
         params.forEach(urlBuilder::addQueryParameter);
         var request = new Request.Builder()
-                .url(url)
+                .url(urlBuilder.build())
                 .header("Authorization", "Bearer " + token)
                 .build();
 

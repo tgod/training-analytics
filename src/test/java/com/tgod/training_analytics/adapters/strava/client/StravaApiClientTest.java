@@ -5,6 +5,7 @@ import com.tgod.training_analytics.adapters.strava.model.StravaTokenResponse;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
+import mockwebserver3.RecordedRequest;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,6 +71,24 @@ class StravaApiClientTest {
         assertThat(activities).hasSize(1);
         assertThat(activities.getFirst().name()).isEqualTo("Morning Run");
         assertThat(activities.getFirst().distance()).isEqualTo(10000.0);
+    }
+
+    @Test
+    void shouldAddGetParametersToTheCall() throws IOException, InterruptedException {
+        //given
+        server.enqueue(new MockResponse.Builder()
+                .code(200)
+                .addHeader("Content-Type", "application/json")
+                .body("[]")
+                .build());
+        var afterTimestamp = Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond();
+        //when
+        client.getActivities("token", afterTimestamp, 1, 100);
+
+        //then
+        RecordedRequest recordedRequest = server.takeRequest();
+        var query = recordedRequest.getUrl().query();
+        assertThat(query).isEqualTo("page=1&per_page=100&after="+afterTimestamp);
     }
 
     @Test
