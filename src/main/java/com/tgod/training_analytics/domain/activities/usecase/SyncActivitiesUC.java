@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class SyncActivitiesUC {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
-    public List<Activity> execute(String username) throws IOException {
+    public List<Activity> execute(String username) {
         var token = accessTokenUC.getByUsername(username);
         var after = activityRepository.findTopByUsernameOrderByStartDateDesc(username)
                 .map(a -> Instant.parse(a.getStartDate()))

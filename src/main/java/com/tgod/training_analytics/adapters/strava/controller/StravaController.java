@@ -3,7 +3,6 @@ package com.tgod.training_analytics.adapters.strava.controller;
 import com.tgod.training_analytics.adapters.strava.config.StravaProperties;
 import com.tgod.training_analytics.api.StravaApi;
 import com.tgod.training_analytics.api.model.ActivityDto;
-import com.tgod.training_analytics.domain.activities.exception.ActivitiesFetchException;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import com.tgod.training_analytics.domain.activities.usecase.AuthenticationCallbackUC;
 import com.tgod.training_analytics.domain.activities.usecase.GetActivitiesUC;
@@ -16,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
@@ -53,14 +51,9 @@ public class StravaController implements StravaApi {
 
     @Override
     public ResponseEntity<List<ActivityDto>> syncStravaActivities() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            List<Activity> activities = syncActivitiesUC.execute(authentication.getName());
-            return ResponseEntity.ok(activities.stream().map(this::toDto).toList());
-        } catch (IOException e) {
-            throw new ActivitiesFetchException("Failed to fetch activities", e);
-        }
-
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        List<Activity> activities = syncActivitiesUC.execute(authentication.getName());
+        return ResponseEntity.ok(activities.stream().map(this::toDto).toList());
     }
 
     @Override
