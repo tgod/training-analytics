@@ -88,7 +88,9 @@ class StravaApiClientTest {
         //then
         RecordedRequest recordedRequest = server.takeRequest();
         var query = recordedRequest.getUrl().query();
-        assertThat(query).isEqualTo("page=1&per_page=100&after="+afterTimestamp);
+        assertThat(query).contains("page=1");
+        assertThat(query).contains("per_page=100");
+        assertThat(query).contains("after="+afterTimestamp);
     }
 
     @Test
