@@ -2,7 +2,7 @@ package com.tgod.training_analytics.adapters.analysis.controller;
 
 import com.tgod.training_analytics.api.InsightsApi;
 import com.tgod.training_analytics.api.model.TrainingAnalysisDto;
-import com.tgod.training_analytics.domain.analysis.ActivityAnalisysService;
+import com.tgod.training_analytics.domain.analysis.ActivityAnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TrainingInsightsController implements InsightsApi {
 
     @Autowired
-    private ActivityAnalisysService service;
+    private ActivityAnalysisService service;
 
     @Override
     public ResponseEntity<TrainingAnalysisDto> getInsights() {

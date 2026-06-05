@@ -1,7 +1,7 @@
 package com.tgod.training_analytics.adapters.analysis.controller;
 
 import com.tgod.training_analytics.adapters.main.config.SecurityConfiguration;
-import com.tgod.training_analytics.domain.analysis.ActivityAnalisysService;
+import com.tgod.training_analytics.domain.analysis.ActivityAnalysisService;
 import com.tgod.training_analytics.domain.analysis.model.TrainingAnalysis;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ class TrainingInsightsControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private ActivityAnalisysService service;
+    private ActivityAnalysisService service;
 
     @Test
     void shouldReturnAnalysisForAuthenticatedUser() throws Exception {

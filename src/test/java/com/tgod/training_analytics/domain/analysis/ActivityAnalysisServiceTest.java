@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ActivityAnalisysServiceTest {
+class ActivityAnalysisServiceTest {
 
     @Mock
     private ActivityRepository activityRepository;
@@ -37,7 +37,7 @@ class ActivityAnalisysServiceTest {
     private TimeProvider timeProvider;
 
     @InjectMocks
-    private ActivityAnalisysService service;
+    private ActivityAnalysisService service;
 
     private static final String USERNAME = "admin";
     private static final String SYSTEM_PROMPT = "You are a coach.";

@@ -18,7 +18,7 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Service
-public class ActivityAnalisysService {
+public class ActivityAnalysisService {
 
     @Value("classpath:prompts/analysis-system-prompt.txt")
     private Resource systemPromptResource;
