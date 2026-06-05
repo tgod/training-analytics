@@ -1,6 +1,7 @@
 package com.tgod.training_analytics.adapters.main.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -17,9 +18,16 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
+    @Value("${security.csrf.disabled:false}")
+    private boolean csrfDisabled;
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http)
             throws Exception {
+
+        if (csrfDisabled) {
+            http.csrf(csrf -> csrf.disable());
+        }
 
         return http
                 .authorizeHttpRequests(auth -> auth
