@@ -9,6 +9,7 @@ import com.tgod.training_analytics.domain.ports.activities.SportActivitiesDataPo
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Transactional
 public class SyncActivitiesUC {
 
     @Autowired
