@@ -70,7 +70,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/ActivityDto"
   /strava/activities/sync:
-    get:
+    post:
       tags:
         - Strava
       operationId: syncStravaActivities
