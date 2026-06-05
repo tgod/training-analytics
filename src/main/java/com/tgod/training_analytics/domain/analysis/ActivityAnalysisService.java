@@ -7,7 +7,6 @@ import com.tgod.training_analytics.domain.analysis.model.TrainingAnalysis;
 import com.tgod.training_analytics.domain.common.TimeProvider;
 import com.tgod.training_analytics.domain.openai.PromptBuilderService;
 import com.tgod.training_analytics.domain.ports.openai.LLMPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -20,17 +19,24 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Service
 public class ActivityAnalysisService {
 
-    @Value("classpath:prompts/analysis-system-prompt.txt")
-    private Resource systemPromptResource;
+    private final Resource systemPromptResource;
+    private final ActivityRepository activityRepository;
+    private final LLMPort llmPort;
+    private final PromptBuilderService promptBuilder;
+    private final TimeProvider timeProvider;
 
-    @Autowired
-    private ActivityRepository activityRepository;
-    @Autowired
-    private LLMPort llmPort;
-    @Autowired
-    private PromptBuilderService promptBuilder;
-    @Autowired
-    private TimeProvider timeProvider;
+    public ActivityAnalysisService(
+            @Value("classpath:prompts/analysis-system-prompt.txt") Resource systemPromptResource,
+            ActivityRepository activityRepository,
+            LLMPort llmPort,
+            PromptBuilderService promptBuilder,
+            TimeProvider timeProvider) {
+        this.systemPromptResource = systemPromptResource;
+        this.activityRepository = activityRepository;
+        this.llmPort = llmPort;
+        this.promptBuilder = promptBuilder;
+        this.timeProvider = timeProvider;
+    }
 
     public TrainingAnalysis analyze(String username, int weeks) {
         var after = timeProvider.getTime().minus(weeks * 7L, ChronoUnit.DAYS).toString();

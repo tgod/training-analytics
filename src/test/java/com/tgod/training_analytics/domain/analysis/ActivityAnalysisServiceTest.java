@@ -7,14 +7,11 @@ import com.tgod.training_analytics.domain.analysis.model.TrainingAnalysis;
 import com.tgod.training_analytics.domain.common.TimeProvider;
 import com.tgod.training_analytics.domain.openai.PromptBuilderService;
 import com.tgod.training_analytics.domain.ports.openai.LLMPort;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -36,22 +33,16 @@ class ActivityAnalysisServiceTest {
     @Mock
     private TimeProvider timeProvider;
 
-    @InjectMocks
-    private ActivityAnalysisService service;
-
     private static final String USERNAME = "admin";
     private static final String SYSTEM_PROMPT = "You are a coach.";
     private static final Instant NOW = Instant.parse("2026-06-01T00:00:00Z");
 
-    @BeforeEach
-    void setUp() {
-        ReflectionTestUtils.setField(service, "systemPromptResource",
-                new ByteArrayResource(SYSTEM_PROMPT.getBytes(StandardCharsets.UTF_8)));
-    }
-
     @Test
     void analyzeDelegatesToCollaboratorsAndReturnsResult() {
         //given
+        var service = new ActivityAnalysisService(
+                new ByteArrayResource(SYSTEM_PROMPT.getBytes(StandardCharsets.UTF_8)),
+                activityRepository, llmPort, promptBuilder, timeProvider);
         var activity = new Activity(1L, "Morning Run", 10000, 3600, 3600, "Run", "Run",
                 "2026-05-01T07:00:00Z", "2026-05-01T08:00:00Z", "UTC",
                 100, 2.8, 4.0, 145.0, 170.0, null, null, null, null, null,
