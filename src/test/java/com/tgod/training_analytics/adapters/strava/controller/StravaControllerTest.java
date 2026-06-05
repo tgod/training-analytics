@@ -1,6 +1,7 @@
 package com.tgod.training_analytics.adapters.strava.controller;
 
 import com.tgod.training_analytics.adapters.main.config.SecurityConfiguration;
+import com.tgod.training_analytics.adapters.strava.OAuthStateStore;
 import com.tgod.training_analytics.adapters.strava.config.StravaProperties;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import com.tgod.training_analytics.domain.activities.usecase.AuthenticationCallbackUC;
@@ -14,6 +15,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.verify;
@@ -43,11 +45,29 @@ class StravaControllerTest {
     @MockitoBean
     private StravaProperties stravaProperties;
 
+    @MockitoBean
+    private OAuthStateStore stateStore;
+
     @Test
-    void shouldHandleCallback() throws Exception {
-        mockMvc.perform(get("/strava/callback/admin").param("code", "test-code"))
+    void shouldHandleCallbackWithValidState() throws Exception {
+        when(stateStore.consumeUsername("valid-state")).thenReturn(Optional.of("admin"));
+
+        mockMvc.perform(get("/strava/callback")
+                        .param("state", "valid-state")
+                        .param("code", "test-code"))
                 .andExpect(status().isOk());
+
         verify(authCallbackUC).handleCallback("test-code", "admin");
+    }
+
+    @Test
+    void shouldReturn400WhenStateIsInvalidOrExpired() throws Exception {
+        when(stateStore.consumeUsername("tampered-state")).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/strava/callback")
+                        .param("state", "tampered-state")
+                        .param("code", "test-code"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -76,12 +96,14 @@ class StravaControllerTest {
         when(stravaProperties.clientId()).thenReturn("12345");
         when(stravaProperties.redirectUri()).thenReturn("http://localhost/strava/callback");
         when(stravaProperties.baseUrl()).thenReturn("https://www.strava.com");
+        when(stateStore.generate("admin")).thenReturn("random-state-token");
 
         mockMvc.perform(get("/strava/login").with(user("admin")))
                 .andExpect(status().isFound())
                 .andExpect(header().string("Location", containsString("strava.com/oauth/authorize")))
                 .andExpect(header().string("Location", containsString("client_id=12345")))
-                .andExpect(header().string("Location", containsString("redirect_uri=http")));
+                .andExpect(header().string("Location", containsString("redirect_uri=http")))
+                .andExpect(header().string("Location", containsString("state=random-state-token")));
     }
 
     @Test

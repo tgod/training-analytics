@@ -23,7 +23,7 @@ public class SecurityConfiguration {
 
         return http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/strava/callback/**")
+                        .requestMatchers("/strava/callback")
                         .permitAll()
                         .requestMatchers("/api/strava/login")
                         .authenticated()

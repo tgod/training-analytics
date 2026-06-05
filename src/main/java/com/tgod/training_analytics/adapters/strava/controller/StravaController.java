@@ -1,8 +1,10 @@
 package com.tgod.training_analytics.adapters.strava.controller;
 
+import com.tgod.training_analytics.adapters.strava.OAuthStateStore;
 import com.tgod.training_analytics.adapters.strava.config.StravaProperties;
 import com.tgod.training_analytics.api.StravaApi;
 import com.tgod.training_analytics.api.model.ActivityDto;
+import com.tgod.training_analytics.domain.activities.exception.InvalidOAuthStateException;
 import com.tgod.training_analytics.domain.activities.model.Activity;
 import com.tgod.training_analytics.domain.activities.usecase.AuthenticationCallbackUC;
 import com.tgod.training_analytics.domain.activities.usecase.GetActivitiesUC;
@@ -33,16 +35,21 @@ public class StravaController implements StravaApi {
     @Autowired
     private StravaProperties properties;
 
+    @Autowired
+    private OAuthStateStore stateStore;
+
     @Override
     public ResponseEntity<Void> stravaLogin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String state = stateStore.generate(authentication.getName());
         var url = HttpUrl.parse(properties.baseUrl() + "/oauth/authorize")
                 .newBuilder()
                 .addQueryParameter("client_id", properties.clientId())
                 .addQueryParameter("response_type", "code")
-                .addQueryParameter("redirect_uri", getRedirectUri(authentication.getName()))
+                .addQueryParameter("redirect_uri", properties.redirectUri())
                 .addQueryParameter("scope", "read,activity:read_all")
                 .addQueryParameter("approval_prompt", "auto")
+                .addQueryParameter("state", state)
                 .build();
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create(url.toString()))
@@ -57,7 +64,9 @@ public class StravaController implements StravaApi {
     }
 
     @Override
-    public ResponseEntity<String> stravaCallback(String username, String code) {
+    public ResponseEntity<String> stravaCallback(String state, String code) {
+        String username = stateStore.consumeUsername(state)
+                .orElseThrow(InvalidOAuthStateException::new);
         authCallbackUC.handleCallback(code, username);
         return ResponseEntity.ok("Authenticated");
     }
@@ -67,10 +76,6 @@ public class StravaController implements StravaApi {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var activities = getActivitiesUC.getActivities(authentication.getName());
         return ResponseEntity.ok(activities.stream().map(this::toDto).toList());
-    }
-
-    private String getRedirectUri(String username) {
-        return "%s/%s".formatted(properties.redirectUri(), username);
     }
 
     private ActivityDto toDto(Activity a) {

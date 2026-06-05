@@ -31,14 +31,14 @@ paths:
               schema:
                 type: string
 
-  /strava/callback/{username}:
+  /strava/callback:
     get:
       tags:
         - Strava
       operationId: stravaCallback
       parameters:
-        - name: username
-          in: path
+        - name: state
+          in: query
           required: true
           schema:
             type: string
