@@ -14,6 +14,10 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,7 +38,7 @@ class SportActivitiesDataAdapterTest {
     @Test
     void shouldReturnsActivitiesFromClient() throws IOException {
         //given
-        List<Activity> activities = List.of(activity());
+        List<Activity> activities = List.of(activity(1L));
         when(client.getActivities(TOKEN, AFTER.getEpochSecond(), 1, 100)).thenReturn(activities);
 
         //when
@@ -68,10 +72,34 @@ class SportActivitiesDataAdapterTest {
                 .hasCauseInstanceOf(StravaApiException.class);
     }
 
-    private Activity activity() {
-        return new Activity(1L, "Morning Run", 10000, 3600, 3700, "Run", "Run",
+    @Test
+    void shouldCallForMultiplePagesOfActivities() throws IOException {
+        //given
+
+        List<Activity> firstPage = activities(100);
+        when(client.getActivities(TOKEN, AFTER.getEpochSecond(), 1, 100)).thenReturn(firstPage);
+        List<Activity> secondPage = activities(20);
+        when(client.getActivities(TOKEN, AFTER.getEpochSecond(), 2, 100)).thenReturn(secondPage);
+
+        //when
+        List<Activity> result = adapter.getActivities(TOKEN, AFTER);
+
+        //then
+        assertThat(result.size()).isEqualTo(firstPage.size()+secondPage.size());
+
+    }
+
+    private Activity activity(long id) {
+        return new Activity(id, "Morning Run", 10000, 3600, 3700, "Run", "Run",
                 "2026-01-01T07:00:00Z", "2026-01-01T08:00:00Z", "UTC",
                 100, 2.8, 4.0, 145.0, 170.0, null, null, null, null, null,
                 false, false, 0, 5, null, 50.0, 10.0);
+    }
+
+    private List<Activity> activities(int count) {
+        Random random = new Random();
+        return IntStream.range(0, count)
+                .mapToObj(_ ->activity(random.nextInt()))
+                .toList();
     }
 }
